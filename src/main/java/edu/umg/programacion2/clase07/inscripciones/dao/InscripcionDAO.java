@@ -29,7 +29,7 @@ public class InscripcionDAO {
 
     private static final String URL = "jdbc:mysql://localhost:3306/prog2_db?useSSL=false&serverTimezone=UTC";
     private static final String USUARIO = "root";
-    private static final String PASSWORD = "tu_password_aqui";
+    private static final String PASSWORD = "Verano2026";
 
     /**
      * Inscribe a un estudiante en un curso. Retorna el id generado.
@@ -96,9 +96,30 @@ public class InscripcionDAO {
     public List<Curso> listarCursosDeEstudiante(String carnet) throws SQLException {
         List<Curso> resultado = new ArrayList<>();
         // TODO: completar (ver pista del JOIN de 3 tablas arriba).
+        
+            String sql = "SELECT c.id, c.nombre, c.creditos "
+                    + "FROM inscripciones i "
+                    + "JOIN cursos c ON i.curso_id = c.id "
+                    + "JOIN estudiantes e ON i.estudiante_id = e.id "
+                    + "WHERE e.carnet = ?";
 
-        return resultado;
-    }
+            try (Connection conexion = DriverManager.getConnection(URL, USUARIO, PASSWORD);
+                 PreparedStatement statement = conexion.prepareStatement(sql)) {
+
+                statement.setString(1, carnet);
+
+                try (ResultSet filas = statement.executeQuery()) {
+                    while (filas.next()) {
+                        int id = filas.getInt("id");
+                        String nombre = filas.getString("nombre");
+                        int creditos = filas.getInt("creditos");
+                        resultado.add(new Curso(id, nombre, creditos));
+                    }
+                }
+            }
+            return resultado;
+        }
+        
 
     /**
      * Lista los estudiantes inscritos en un curso, dado su nombre.
@@ -112,7 +133,28 @@ public class InscripcionDAO {
     public List<Estudiante> listarEstudiantesDeCurso(String nombreCurso) throws SQLException {
         List<Estudiante> resultado = new ArrayList<>();
         // TODO: completar.
+        
+            String sql = "SELECT e.id, e.nombre, e.carnet "
+                    + "FROM inscripciones i "
+                    + "JOIN estudiantes e ON i.estudiante_id = e.id "
+                    + "JOIN cursos c ON i.curso_id = c.id "
+                    + "WHERE c.nombre = ?";
 
+            try (Connection conexion = DriverManager.getConnection(URL, USUARIO, PASSWORD);
+                 PreparedStatement statement = conexion.prepareStatement(sql)) {
+
+                statement.setString(1, nombreCurso);
+
+                try (ResultSet filas = statement.executeQuery()) {
+                    while (filas.next()) {
+                        int id = filas.getInt("id");
+                        String nombre = filas.getString("nombre");
+                        String carnet = filas.getString("carnet");
+                        resultado.add(new Estudiante(id, nombre, carnet));
+                    }
+                }
+            }
+       
         return resultado;
     }
 
