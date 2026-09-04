@@ -32,7 +32,7 @@ public class InscripcionDAO {
 
     private static final String PASSWORD = "Verano2026";
 
-    private static final String PASSWORD = "Tonyñi123.";
+
 
 
     /**
