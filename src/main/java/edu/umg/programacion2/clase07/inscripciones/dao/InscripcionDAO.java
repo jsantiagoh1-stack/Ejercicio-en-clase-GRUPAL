@@ -12,7 +12,7 @@ import java.sql.SQLIntegrityConstraintViolationException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
-
+import java.sql.Statement;
 /**
  * TAREA: este es el DAO que tienes que construir. Resuelve la relacion
  * muchos-a-muchos entre estudiantes y cursos (tabla intermedia
@@ -29,7 +29,7 @@ public class InscripcionDAO {
 
     private static final String URL = "jdbc:mysql://localhost:3306/prog2_db?useSSL=false&serverTimezone=UTC";
     private static final String USUARIO = "root";
-    private static final String PASSWORD = "tu_password_aqui";
+    private static final String PASSWORD = "111.";
 
     /**
      * Inscribe a un estudiante en un curso. Retorna el id generado.
@@ -52,10 +52,28 @@ public class InscripcionDAO {
      *    vez de dejar que el error se propague sin explicacion.
      */
     public int inscribir(int estudianteId, int cursoId) throws SQLException {
-        // TODO: completar (ver pistas arriba). Recuerda el catch especifico
-        // para inscripciones duplicadas antes del catch general.
-        return -1;
-    }
+    	
+    	    String sql = "INSERT INTO inscripciones (estudiante_id, curso_id) VALUES (?, ?)";
+
+    	    try (Connection conexion = DriverManager.getConnection(URL, USUARIO, PASSWORD);
+    	         PreparedStatement statement = conexion.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
+
+    	        statement.setInt(1, estudianteId);
+    	        statement.setInt(2, cursoId);
+    	        statement.executeUpdate();
+
+    	        try (ResultSet claves = statement.getGeneratedKeys()) {
+    	            if (claves.next()) {
+    	                return claves.getInt(1);
+    	            }
+    	            return -1;
+    	        }
+
+    	    } catch (SQLIntegrityConstraintViolationException e) {
+    	        return -1;
+    	    }
+    	}
+    
 
     /**
      * Registra (o actualiza) la nota de un estudiante en un curso.
