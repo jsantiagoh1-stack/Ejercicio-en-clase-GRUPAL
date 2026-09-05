@@ -83,3 +83,11 @@ Agrega un metodo `InscripcionDAO.estudiantesSinNota()` que liste los
 estudiantes con al menos una inscripcion cuya `nota` sea `NULL` (pista:
 `WHERE nota IS NULL`, y recuerda evitar estudiantes repetidos si aparecen en
 mas de una fila - investiga `SELECT DISTINCT`).
+
+IEGRANTES
+
+SALVADOR ALEXANDER TEMA SALAZAR CARNET:0905-25-13074
+
+JOSE JULIAN SANTAIGO HERNANDEZ CARNET: 0905-25-10952
+
+ANTONY DIONICIO NAJARRO MARROQUIN CARNET: 0905-25-11238
