@@ -50,3 +50,6 @@ INSERT IGNORE INTO inscripciones (id, estudiante_id, curso_id, nota) VALUES
     (4, 3, 1, 95.00),
     (5, 3, 3, NULL),
     (6, 4, 2, NULL);
+    
+    USE prog2_db;
+    
