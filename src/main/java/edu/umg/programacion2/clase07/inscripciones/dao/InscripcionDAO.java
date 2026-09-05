@@ -13,6 +13,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.sql.Statement;
+
 /**
  * TAREA: este es el DAO que tienes que construir. Resuelve la relacion
  * muchos-a-muchos entre estudiantes y cursos (tabla intermedia
@@ -30,9 +31,7 @@ public class InscripcionDAO {
     private static final String URL = "jdbc:mysql://localhost:3306/prog2_db?useSSL=false&serverTimezone=UTC";
     private static final String USUARIO = "root";
 
-    private static final String PASSWORD = "Verano2026";
-
-
+    private static final String PASSWORD = "maplewood78";
 
 
     /**
@@ -56,28 +55,27 @@ public class InscripcionDAO {
      *    vez de dejar que el error se propague sin explicacion.
      */
     public int inscribir(int estudianteId, int cursoId) throws SQLException {
-    	
-    	    String sql = "INSERT INTO inscripciones (estudiante_id, curso_id) VALUES (?, ?)";
+        
+        String sql = "INSERT INTO inscripciones (estudiante_id, curso_id) VALUES (?, ?)";
 
-    	    try (Connection conexion = DriverManager.getConnection(URL, USUARIO, PASSWORD);
-    	         PreparedStatement statement = conexion.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
+        try (Connection conexion = DriverManager.getConnection(URL, USUARIO, PASSWORD);
+             PreparedStatement statement = conexion.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
 
-    	        statement.setInt(1, estudianteId);
-    	        statement.setInt(2, cursoId);
-    	        statement.executeUpdate();
+            statement.setInt(1, estudianteId);
+            statement.setInt(2, cursoId);
+            statement.executeUpdate();
 
-    	        try (ResultSet claves = statement.getGeneratedKeys()) {
-    	            if (claves.next()) {
-    	                return claves.getInt(1);
-    	            }
-    	            return -1;
-    	        }
+            try (ResultSet claves = statement.getGeneratedKeys()) {
+                if (claves.next()) {
+                    return claves.getInt(1);
+                }
+                return -1;
+            }
 
-    	    } catch (SQLIntegrityConstraintViolationException e) {
-    	        return -1;
-    	    }
-    	}
-    
+        } catch (SQLIntegrityConstraintViolationException e) {
+            return -1;
+        }
+    }
 
     /**
      * Registra (o actualiza) la nota de un estudiante en un curso.
@@ -127,31 +125,29 @@ public class InscripcionDAO {
      */
     public List<Curso> listarCursosDeEstudiante(String carnet) throws SQLException {
         List<Curso> resultado = new ArrayList<>();
-        // TODO: completar (ver pista del JOIN de 3 tablas arriba).
         
-            String sql = "SELECT c.id, c.nombre, c.creditos "
-                    + "FROM inscripciones i "
-                    + "JOIN cursos c ON i.curso_id = c.id "
-                    + "JOIN estudiantes e ON i.estudiante_id = e.id "
-                    + "WHERE e.carnet = ?";
+        String sql = "SELECT c.id, c.nombre, c.creditos "
+                   + "FROM inscripciones i "
+                   + "JOIN cursos c ON i.curso_id = c.id "
+                   + "JOIN estudiantes e ON i.estudiante_id = e.id "
+                   + "WHERE e.carnet = ?";
 
-            try (Connection conexion = DriverManager.getConnection(URL, USUARIO, PASSWORD);
-                 PreparedStatement statement = conexion.prepareStatement(sql)) {
+        try (Connection conexion = DriverManager.getConnection(URL, USUARIO, PASSWORD);
+             PreparedStatement statement = conexion.prepareStatement(sql)) {
 
-                statement.setString(1, carnet);
+            statement.setString(1, carnet);
 
-                try (ResultSet filas = statement.executeQuery()) {
-                    while (filas.next()) {
-                        int id = filas.getInt("id");
-                        String nombre = filas.getString("nombre");
-                        int creditos = filas.getInt("creditos");
-                        resultado.add(new Curso(id, nombre, creditos));
-                    }
+            try (ResultSet filas = statement.executeQuery()) {
+                while (filas.next()) {
+                    int id = filas.getInt("id");
+                    String nombre = filas.getString("nombre");
+                    int creditos = filas.getInt("creditos");
+                    resultado.add(new Curso(id, nombre, creditos));
                 }
             }
-            return resultado;
         }
-        
+        return resultado;
+    }
 
     /**
      * Lista los estudiantes inscritos en un curso, dado su nombre.
@@ -164,29 +160,28 @@ public class InscripcionDAO {
      */
     public List<Estudiante> listarEstudiantesDeCurso(String nombreCurso) throws SQLException {
         List<Estudiante> resultado = new ArrayList<>();
-        // TODO: completar.
         
-            String sql = "SELECT e.id, e.nombre, e.carnet "
-                    + "FROM inscripciones i "
-                    + "JOIN estudiantes e ON i.estudiante_id = e.id "
-                    + "JOIN cursos c ON i.curso_id = c.id "
-                    + "WHERE c.nombre = ?";
+        String sql = "SELECT e.id, e.nombre, e.carnet "
+                   + "FROM inscripciones i "
+                   + "JOIN estudiantes e ON i.estudiante_id = e.id "
+                   + "JOIN cursos c ON i.curso_id = c.id "
+                   + "WHERE c.nombre = ?";
 
-            try (Connection conexion = DriverManager.getConnection(URL, USUARIO, PASSWORD);
-                 PreparedStatement statement = conexion.prepareStatement(sql)) {
+        try (Connection conexion = DriverManager.getConnection(URL, USUARIO, PASSWORD);
+             PreparedStatement statement = conexion.prepareStatement(sql)) {
 
-                statement.setString(1, nombreCurso);
+            statement.setString(1, nombreCurso);
 
-                try (ResultSet filas = statement.executeQuery()) {
-                    while (filas.next()) {
-                        int id = filas.getInt("id");
-                        String nombre = filas.getString("nombre");
-                        String carnet = filas.getString("carnet");
-                        resultado.add(new Estudiante(id, nombre, carnet));
-                    }
+            try (ResultSet filas = statement.executeQuery()) {
+                while (filas.next()) {
+                    int id = filas.getInt("id");
+                    String nombre = filas.getString("nombre");
+                    String carnet = filas.getString("carnet");
+                    resultado.add(new Estudiante(id, nombre, carnet));
                 }
             }
-       
+        }
+        
         return resultado;
     }
 
@@ -213,7 +208,25 @@ public class InscripcionDAO {
      *    Optional.empty().
      */
     public Optional<Double> promedioDeEstudiante(String carnet) throws SQLException {
-        // TODO: completar (ver pistas arriba, especialmente el caso NULL).
+        String sql = "SELECT AVG(i.nota) AS promedio "
+                   + "FROM inscripciones i "
+                   + "JOIN estudiantes e ON i.estudiante_id = e.id "
+                   + "WHERE e.carnet = ?";
+
+        try (Connection conexion = DriverManager.getConnection(URL, USUARIO, PASSWORD);
+             PreparedStatement statement = conexion.prepareStatement(sql)) {
+
+            statement.setString(1, carnet);
+
+            try (ResultSet rs = statement.executeQuery()) {
+                if (rs.next()) {
+                    double promedio = rs.getDouble("promedio");
+                    if (!rs.wasNull()) {
+                        return Optional.of(promedio);
+                    }
+                }
+            }
+        }
         return Optional.empty();
     }
 
@@ -240,7 +253,47 @@ public class InscripcionDAO {
      *    retorna Optional.empty() en ese caso.
      */
     public Optional<String> cursoConMasInscritos() throws SQLException {
-        // TODO: completar (ver pistas arriba).
+        String sql = "SELECT c.nombre, COUNT(*) AS total "
+                   + "FROM inscripciones i "
+                   + "JOIN cursos c ON i.curso_id = c.id "
+                   + "GROUP BY c.nombre "
+                   + "ORDER BY total DESC "
+                   + "LIMIT 1";
+
+        try (Connection conexion = DriverManager.getConnection(URL, USUARIO, PASSWORD);
+             PreparedStatement statement = conexion.prepareStatement(sql);
+             ResultSet rs = statement.executeQuery()) {
+
+            if (rs.next()) {
+                return Optional.of(rs.getString("nombre"));
+            }
+        }
         return Optional.empty();
+    }
+
+    /**
+     * Desafio opcional: Retorna la lista de estudiantes que tienen al menos
+     * una inscripcion sin nota registrada (nota IS NULL).
+     */
+    public List<Estudiante> estudiantesSinNota() throws SQLException {
+        List<Estudiante> resultado = new ArrayList<>();
+        String sql = "SELECT DISTINCT e.id, e.nombre, e.carnet "
+                   + "FROM estudiantes e "
+                   + "JOIN inscripciones i ON e.id = i.estudiante_id "
+                   + "WHERE i.nota IS NULL";
+
+        try (Connection conexion = DriverManager.getConnection(URL, USUARIO, PASSWORD);
+             PreparedStatement statement = conexion.prepareStatement(sql);
+             ResultSet rs = statement.executeQuery()) {
+
+            while (rs.next()) {
+                resultado.add(new Estudiante(
+                    rs.getInt("id"),
+                    rs.getString("nombre"),
+                    rs.getString("carnet")
+                ));
+            }
+        }
+        return resultado;
     }
 }
